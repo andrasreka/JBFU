@@ -59,20 +59,19 @@ def upsampling(rgb, depth):
 
         print("{} iter from {}".format(i, uf))
         
-        #rgb = cv2.resize(rgb, rgb.shape * 2)
-
-        width = int(rgb.shape[1] * 2)
-        height = int(rgb.shape[0] * 2)
-        dim = (width, height)
+        #D *= 2 (size)
+        width = int(depth.shape[1] * 2)
+        height = int(depth.shape[0] * 2)
+        dim = (width, height)        
         
         rgb = cv2.resize(rgb, dim) 
         depth = cv2.resize(depth, dim) 
 
-        depth = jbf(rgb, depth, 5, 0.1, 0.1)
+        depth = jbf(rgb, depth, 5, 10, 10)
 
     
     depth = cv2.resize(depth, (rgb_ori.shape[1], rgb_ori.shape[0]))
-    return jbf(rgb_ori, depth, 5, 0.1, 0.1)
+    return jbf(rgb_ori, depth, 5, 10, 10)
 
 
 if __name__ == "__main__":
@@ -81,11 +80,12 @@ if __name__ == "__main__":
     rgb = cv2.imread("view5.png", 0)
     depth = cv2.imread("lowres_depth.png", 0)
 
-    scale_percent = 50
-    width = int(rgb.shape[1] * scale_percent / 100)
-    height = int(rgb.shape[0] * scale_percent / 100)
-    dim = (width, height)
-    rgb = cv2.resize(rgb, dim)
+    # scale_percent = 30
+    # width = int(rgb.shape[1] * scale_percent / 100)
+    # height = int(rgb.shape[0] * scale_percent / 100)
+    # dim = (width, height)
+    # rgb = cv2.resize(rgb, dim)
+    # print(rgb.shape)
 
     upsampled = upsampling(rgb, depth)
 
