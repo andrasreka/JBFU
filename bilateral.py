@@ -9,12 +9,12 @@ def distance(x, y, i, j): return np.sqrt((x-i)**2 + (y-j)**2)
 
 def gaussian(x, sigma): return (1.0 / (2 * np.pi * (sigma ** 2))) * np.exp(- (x ** 2) / (2 * sigma ** 2))
 
-def apply_bilateral_filter(f, g, x, y, diameter, sigma_spatial, sigma_range):
+def apply_bilateral_filter(f, g, x, y, kernel, sigma_spatial, sigma_range):
     
     #f usid for weighting
     #g is filtered
     
-    hl = int(diameter/2)
+    hl = int(kernel/2)
     
     f = cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE)
     g = cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE)
@@ -22,8 +22,8 @@ def apply_bilateral_filter(f, g, x, y, diameter, sigma_spatial, sigma_range):
 
     i_filtered = 0
     Wp = 0
-    for i in range(diameter - 1):
-        for j in range(diameter - 1):
+    for i in range(kernel - 1):
+        for j in range(kernel - 1):
             
             window_x = x - hl + i
             window_y = y - hl + j
@@ -49,7 +49,7 @@ def jbf(f, g, filter_diameter, sigma_i, sigma_s):
     filtered_image =  Parallel(n_jobs=30)(delayed(apply_bilateral_filter)(f, g, i, j, filter_diameter, sigma_i, sigma_s) for i in range (len(g)) for j in range (len(g[0])))
     return np.array(filtered_image, dtype = np.uint8).reshape(g.shape)
 
-def upsampling(rgb, depth, s1, s2):
+def upsampling(rgb, depth, kernel, s1, s2):
     
     rgb_ori = rgb.copy()
     #upsampling fector based on rows
@@ -67,20 +67,22 @@ def upsampling(rgb, depth, s1, s2):
         rgb = cv2.resize(rgb, dim) 
         depth = cv2.resize(depth, dim) 
 
-        depth = jbf(rgb, depth, 5, s1, s2)
+        depth = jbf(rgb, depth, kernel, s1, s2)
 
     
     depth = cv2.resize(depth, (rgb_ori.shape[1], rgb_ori.shape[0]))
-    return jbf(rgb_ori, depth, 5, s1, s2)
+    return jbf(rgb_ori, depth, kernel, s1, s2)
 
 
 if __name__ == "__main__":
 
     SIGMA_SPATIAL = 5
     SIGNA_RANGE = 5
+    KERNEL = 7
 
-    rgb = cv2.imread("view5.png", 0)
-    depth = cv2.imread("lowres_depth.png", 0)
+    rgb = cv2.imread("im2.ppm", 0)
+    depth = cv2.imread("disp2.png", 0)
+    print(rgb.shape)
 
     # scale_percent = 30
     # width = int(rgb.shape[1] * scale_percent / 100)
@@ -90,7 +92,7 @@ if __name__ == "__main__":
     # print(rgb.shape)
     
     start=datetime.now()
-    upsampled = upsampling(rgb, depth, SIGMA_SPATIAL, SIGNA_RANGE)
+    upsampled = upsampling(rgb, depth, KERNEL, SIGMA_SPATIAL, SIGNA_RANGE)
     print(datetime.now()-start)
 
     cv2.imwrite("upsampeld.png",upsampled)
