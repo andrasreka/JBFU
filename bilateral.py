@@ -76,8 +76,8 @@ def upsampling(rgb, depth, kernel, s1, s2):
 
 if __name__ == "__main__":
 
-    SIGMA_SPATIAL = 5
-    SIGNA_RANGE = 5
+    SIGMA_SPATIAL = 4
+    SIGNA_RANGE = 4
     KERNEL = 7
 
     rgb = cv2.imread("im2.ppm", 0)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     upsampled = upsampling(rgb, depth, KERNEL, SIGMA_SPATIAL, SIGNA_RANGE)
     print(datetime.now()-start)
 
-    cv2.imwrite("upsampeld.png",upsampled)
+    cv2.imwrite("upsampled.png",upsampled)
 
 
 # if __name__ == "__main__":
