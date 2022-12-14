@@ -106,7 +106,7 @@ def jbmf(f, g, filter_diameter, sigma_i, sigma_s, w):
     return np.array(filtered_image, dtype = np.uint8).reshape(g.shape)
 
 
-def upsampling(rgb, depth, kernel, s1, s2):
+def upsampling_iterative(rgb, depth, kernel, s1, s2):
 
     print("Upsample running: {}, {}, {}".format(kernel, s1, s2))
     
@@ -135,62 +135,73 @@ def upsampling(rgb, depth, kernel, s1, s2):
     return jbf(rgb_ori, depth, kernel, s1, s2)
 
 
-# if __name__ == "__main__":
-
-#     SIGMA_SPATIAL = 4
-#     SIGNA_RANGE = 4
-#     KERNEL = 7
-
-#     rgb = cv2.imread("im2.ppm", 0)
-#     depth = cv2.imread("disp2.png", 0)
-#     print(rgb.shape)
-
-#     # scale_percent = 30
-#     # width = int(rgb.shape[1] * scale_percent / 100)
-#     # height = int(rgb.shape[0] * scale_percent / 100)
-#     # dim = (width, height)
-#     # rgb = cv2.resize(rgb, dim)
-#     # print(rgb.shape)
-    
-#     start=datetime.now()
-#     upsampled = upsampling(rgb, depth, KERNEL, SIGMA_SPATIAL, SIGNA_RANGE)
-#     print(datetime.now()-start)
-
-#     cv2.imwrite("upsampled.png",upsampled)
-
+def upsampling(rgb, depth, kernel, s1, s2):
+        
+    depth = cv2.resize(depth, (rgb.shape[1], rgb.shape[0]))
+    return jbf(rgb, depth, kernel, s1, s2)
 
 if __name__ == "__main__":
+
+    SIGMA_SPATIAL = 4
+    SIGNA_RANGE = 4
+    KERNEL = 7
+
+    rgb = cv2.imread("im2.ppm", 0)
+    depth = cv2.imread("disp2.png", 0)
+    print(rgb.shape)
+
+    # scale_percent = 30
+    # width = int(rgb.shape[1] * scale_percent / 100)
+    # height = int(rgb.shape[0] * scale_percent / 100)
+    # dim = (width, height)
+    # rgb = cv2.resize(rgb, dim)
+    # print(rgb.shape)
     
-
-    f = cv2.imread("lena.png", 0)
-    #g = cv2.imread("testa.jpg", 0)
-
-
-    # #only for speedy testing
-    # if input_img.shape[0] > 512:
-    #     scale_percent = 50
-    #     width = int(input_img.shape[1] * scale_percent / 100)
-    #     height = int(input_img.shape[0] * scale_percent / 100)
-    #     dim = (width, height)
-    #     src = cv2.resize(input_img, dim, interpolation = cv2.INTER_AREA)
-    # else:
-    #     src = input_img
-    
-    cv2.imwrite("ori.png",f)
-
-    filtered_image_OpenCV = cv2.bilateralFilter(f, 7, 12.0, 16.0)
-    # cv2.imshow("filtered_image_OpenCV.png", filtered_image_OpenCV)
-    cv2.imwrite("filtered_image_OpenCV.png",filtered_image_OpenCV)
-
     start=datetime.now()
-    filtered_image_own = jbmf(f, f, 7, 12.0, 16.0, None)
+    upsampled = upsampling(rgb, depth, KERNEL, SIGMA_SPATIAL, SIGNA_RANGE)
     print(datetime.now()-start)
 
-    cv2.imshow("filtered_image_own.png", filtered_image_own)
-    cv2.imwrite("jbf.png",filtered_image_own)
+    cv2.imwrite("upsampled_sf.png",upsampled)
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    start=datetime.now()
+    upsampled = upsampling_iterative(rgb, depth, KERNEL, SIGMA_SPATIAL, SIGNA_RANGE)
+    print(datetime.now()-start)
+
+    cv2.imwrite("upsampled_it.png",upsampled)
+
+
+# if __name__ == "__main__":
+    
+
+#     f = cv2.imread("lena.png", 0)
+#     #g = cv2.imread("testa.jpg", 0)
+
+
+#     # #only for speedy testing
+#     # if input_img.shape[0] > 512:
+#     #     scale_percent = 50
+#     #     width = int(input_img.shape[1] * scale_percent / 100)
+#     #     height = int(input_img.shape[0] * scale_percent / 100)
+#     #     dim = (width, height)
+#     #     src = cv2.resize(input_img, dim, interpolation = cv2.INTER_AREA)
+#     # else:
+#     #     src = input_img
+    
+#     cv2.imwrite("ori.png",f)
+
+#     filtered_image_OpenCV = cv2.bilateralFilter(f, 7, 12.0, 16.0)
+#     # cv2.imshow("filtered_image_OpenCV.png", filtered_image_OpenCV)
+#     cv2.imwrite("filtered_image_OpenCV.png",filtered_image_OpenCV)
+
+#     start=datetime.now()
+#     filtered_image_own = jbmf(f, f, 7, 12.0, 16.0, None)
+#     print(datetime.now()-start)
+
+#     cv2.imshow("filtered_image_own.png", filtered_image_own)
+#     cv2.imwrite("jbf.png",filtered_image_own)
+
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
 
 
 
