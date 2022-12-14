@@ -6,84 +6,88 @@ def distance(x, y, i, j): return np.sqrt((x-i)**2 + (y-j)**2)
 
 def gaussian(x, sigma): return (1.0 / (2 * np.pi * (sigma ** 2))) * np.exp(- (x ** 2) / (2 * sigma ** 2))
 
-def bilateral_filter(f, g, x, y, kernel, sigma_spatial, sigma_range):    
+def bilateral_filter(f, g, x, y, kernel_size, sigma_spatial, sigma_range):    
     #f used for weighting
     #g is filtered
     
-    hl = int(kernel/2)
+    hl = int(kernel_size/2)
+    center_x = x + hl
+    center_y = y + hl
     
-    f_padded = cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE)
-    g_padded = cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE)
-
-
     i_filtered = 0
     Wp = 0
-    for i in range(kernel - 1):
-        for j in range(kernel - 1):
+    for i in range(kernel_size):
+        for j in range(kernel_size):
             
-            window_x = x - hl + i
-            window_y = y - hl + j
+            window_x = x + i
+            window_y = y + j
 
-            mean_i = int(f_padded[int(window_x)][int(window_y)]) - int(f_padded[x][y])
-            mean_s = distance(window_x, window_y, x, y)
+            mean_i = int(f[window_x,window_y]) - int(f[center_x][center_y])
+            mean_s = distance(window_x, window_y, center_x, center_y)
 
             prod = gaussian(mean_i, sigma_range) * gaussian(mean_s, sigma_spatial)
-            i_filtered += g_padded[int(window_x)][int(window_y)] * prod
+            i_filtered += g[window_x][window_y] * prod
             Wp += prod
 
     i_filtered = i_filtered / Wp
     return int(round(i_filtered))
 
 def weighted_median_bilateral_filter(f, g, x, y, kernel_size, sigma_spatial, sigma_range, weights):
-    #f usid for weighting
+    #f used for weighting
     #g is filtered
+    #x,y the kernel right top corner
 
-    min_sum = np.inf
-    min_y = None
     hl = int(kernel_size/2)
+    center_x = x + hl
+    center_y = y + hl
+    medians = list(set(g[x:x+kernel_size, y:y+kernel_size].flatten()))
+    bilateral_filter = np.zeros((kernel_size,kernel_size))
 
-    medians = set(g[x:x+2*hl, y:y+2*hl].flatten())
-    for y_intensity in medians:
-        i_filtered = 0
-        for i in range(kernel_size - 1):
-            for j in range(kernel_size - 1):
+    for i in range(kernel_size):
+            for j in range(kernel_size):
                 
-                window_x = int(x - hl + i)
-                window_y = int(y - hl + j)
+                window_x = x + i
+                window_y = y + j
 
                 #print(window_x, window_y, x, y)
-                mean_i = int(f[window_x,window_y]) - int(f[x][y])
-                mean_s = distance(window_x, window_y, x, y)
+                mean_i = int(f[window_x,window_y]) - int(f[center_x][center_y])
+                mean_s = distance(window_x, window_y, center_x, center_y)
 
                 gi = gaussian(mean_i, sigma_range)
                 gs = gaussian(mean_s, sigma_spatial)
-                i_filtered += weights[i,j] * abs(y_intensity - int(g[window_x,window_y])) * gi * gs
-        
-        if i_filtered<min_sum:
-            min_sum = i_filtered
-            min_y = y_intensity
+         
+                bilateral_filter[i,j] = gi*gs
 
-    return min_y
+    costs = [np.sum(weights * abs(intensity - g[x:x+kernel_size, y:y+kernel_size]) * bilateral_filter)  for intensity in medians]
+    return medians[np.array(costs).argmin()]
             
 
 def jbf(f, g, kernel_size, sigma_i, sigma_s):
-    #f usid for weighting
-    #g is filtered
-
-    filtered_image = np.zeros(g.shape)
-    filtered_image =  Parallel(n_jobs=32)(delayed(bilateral_filter)(f, g, i, j, kernel_size, sigma_i, sigma_s) for i in range (len(g)) for j in range (len(g[0])))
-    return np.array(filtered_image, dtype = np.uint8).reshape(g.shape)
-
-
-def jbmf(f, g, kernel_size, sigma_i, sigma_s, w):
-    #f usid for weighting
+    #f used for weighting
     #g is filtered
 
     hl = int(kernel_size/2)
     height,width = g.shape
 
-    filtered_image = np.zeros(g.shape)
-    filtered_image =  Parallel(n_jobs=32)(delayed(weighted_median_bilateral_filter) (
+    filtered_image =  Parallel(n_jobs=12)(delayed(bilateral_filter)(
+    cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
+    cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
+    i, 
+    j, 
+    kernel_size, 
+    sigma_i, 
+    sigma_s) for i in range(height) for j in range(width))
+    
+    return np.array(filtered_image, dtype = np.uint8).reshape(g.shape)
+
+def jbmf(f, g, kernel_size, sigma_i, sigma_s, w):
+    #f used for weighting
+    #g is filtered
+
+    hl = int(kernel_size/2)
+    height,width = g.shape
+
+    filtered_image =  Parallel(n_jobs=12)(delayed(weighted_median_bilateral_filter) (
         cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
         cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
         i, 
@@ -112,7 +116,6 @@ def upsampling_iterative(rgb, depth, kernel, s1, s2, weights=None):
     print("Upsample iterative running: {}, {}, {}".format(kernel, s1, s2))
     
     rgb_ori = rgb.copy()
-    #upsampling factor
     uf = int(np.log2(rgb.shape[1]/depth.shape[1])) 
 
     for i in range(uf):
