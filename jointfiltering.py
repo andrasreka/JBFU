@@ -12,11 +12,18 @@ if __name__ == "__main__":
 
     start=datetime.now()
 
-    
+    weights = np.ones((5,5))
+    weights[-1,:] = 1/2
+    weights[0,:] = 1/2
+    weights[:,-1] = 1/2
+    weights[:,0] = 1/2
+
+    print(weights)
+
     for i in range(3):
         print("Channel:", i)
         #filtered_image_own[:,:,i] = jbf(f[:,:,i], g[:,:,i], 7, 5.0, 5.0)
-        filtered_image_own[:,:,i] = jbmf(f[:,:,i], g[:,:,i], 7, 5.0, 5.0, np.ones((7,7)))
+        filtered_image_own[:,:,i] = jbmf(f[:,:,i], g[:,:,i], 5, 8.0, 10.0, weights)
 
     print(datetime.now()-start)
 
