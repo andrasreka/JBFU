@@ -1,16 +1,16 @@
 import cv2
-import datetime as datetime
+from datetime import datetime
 import numpy as np
 from bilateral import jbmf
 
 if __name__ == "__main__":
     
-    input_img = cv2.imread("lena.png", 0)
+    input_img = cv2.imread("../data/flash_no_flash/potsWB_00_flash.jpg", 0)
     #g = cv2.imread("testa.jpg", 0)
 
     #only for speedy testing
     if input_img.shape[0] > 300:
-        scale_percent = 20
+        scale_percent = 10
         width = int(input_img.shape[1] * scale_percent / 100)
         height = int(input_img.shape[0] * scale_percent / 100)
         dim = (width, height)
