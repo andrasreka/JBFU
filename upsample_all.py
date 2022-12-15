@@ -16,7 +16,6 @@ if __name__ == "__main__":
 
         rgb = cv2.imread(base + image + "/view1.png", 0)
         d = cv2.imread(base + image + "/disp1.png", 0)
-        rgb = d
 
         start=datetime.now()
         jb_sf = upsampling(rgb, d, kernel, sigma_spatial, sigma_range)
