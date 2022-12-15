@@ -1,7 +1,7 @@
 import cv2
 from bilateral import upsampling_iterative, upsampling
 import numpy as np
-from datetime import datetime
+from datetime import datetime,timedelta
 if __name__ == "__main__":
 
     kernel = 7
@@ -9,13 +9,14 @@ if __name__ == "__main__":
     sigma_range = 7
     weights = np.ones((kernel, kernel))
     images = ['Books', 'Dolls', 'Laundry', 'Moebius', 'Reindeer']
-    sums =  [0,0,0,0]
+    sums =  [timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)]
     base = "data/scenes_2005/"
     for image in images:
         print("Processing {}".format(image))
 
         rgb = cv2.imread(base + image + "/view1.png", 0)
         d = cv2.imread(base + image + "/disp1.png", 0)
+        rgb = d
 
         start=datetime.now()
         jb_sf = upsampling(rgb, d, kernel, sigma_spatial, sigma_range)
@@ -37,7 +38,8 @@ if __name__ == "__main__":
         sums[3] += datetime.now()-start
         cv2.imwrite(base + image + "/jbm_it.png",jbm_it)
 
-
+    secs = [s.seconds for s in sums]
+    print(secs) 
 
 
 
