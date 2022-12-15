@@ -69,23 +69,23 @@ def jbf(f, g, kernel_size, sigma_i, sigma_s):
     hl = int(kernel_size/2)
     height,width = g.shape
 
-    filtered_image =  Parallel(n_jobs=-1)(delayed(bilateral_filter)(
-    cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
-    cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
-    i, 
-    j, 
-    kernel_size, 
-    sigma_i, 
-    sigma_s) for i in range(height) for j in range(width))
-
-    # filtered_image =  [(bilateral_filter)(
+    # filtered_image =  Parallel(n_jobs=-1)(delayed(bilateral_filter)(
     # cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
     # cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
     # i, 
     # j, 
     # kernel_size, 
     # sigma_i, 
-    # sigma_s) for i in range(height) for j in range(width)]
+    # sigma_s) for i in range(height) for j in range(width))
+
+    filtered_image =  [(bilateral_filter)(
+    cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
+    cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
+    i, 
+    j, 
+    kernel_size, 
+    sigma_i, 
+    sigma_s) for i in range(height) for j in range(width)]
     
     return np.array(filtered_image, dtype = np.uint8).reshape(g.shape)
 
@@ -96,18 +96,7 @@ def jbmf(f, g, kernel_size, sigma_i, sigma_s, w):
     hl = int(kernel_size/2)
     height,width = g.shape
 
-    filtered_image =  Parallel(n_jobs=-1)(delayed(weighted_median_bilateral_filter) (
-        cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
-        cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
-        i, 
-        j, 
-        kernel_size, 
-        sigma_i, 
-        sigma_s, 
-        w) for i in range(height) for j in range(width))
- 
-    #nonparallel version for debugging
-    # filtered_image = [(weighted_median_bilateral_filter)(
+    # filtered_image =  Parallel(n_jobs=-1)(delayed(weighted_median_bilateral_filter) (
     #     cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
     #     cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
     #     i, 
@@ -115,7 +104,18 @@ def jbmf(f, g, kernel_size, sigma_i, sigma_s, w):
     #     kernel_size, 
     #     sigma_i, 
     #     sigma_s, 
-    #     w) for i in range(height) for j in range(width)]
+    #     w) for i in range(height) for j in range(width))
+ 
+    #nonparallel version for debugging
+    filtered_image = [(weighted_median_bilateral_filter)(
+        cv2.copyMakeBorder(f,hl,hl,hl,hl,cv2.BORDER_REPLICATE), 
+        cv2.copyMakeBorder(g,hl,hl,hl,hl,cv2.BORDER_REPLICATE),
+        i, 
+        j, 
+        kernel_size, 
+        sigma_i, 
+        sigma_s, 
+        w) for i in range(height) for j in range(width)]
 
     return np.array(filtered_image, dtype = np.uint8).reshape(g.shape)
 
