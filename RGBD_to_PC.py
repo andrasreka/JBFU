@@ -9,7 +9,7 @@ def replace_zeroes(data):
 
 def RGBD_to_PC(rgb, d, focal_length, baseline, scale = 9.88):
 
-    disparity_matrix = (focal_length/scale) * (baseline/scale) / d#replace_zeroes(d)
+    disparity_matrix = (focal_length/scale) * (baseline/scale) / replace_zeroes(d)
 
     img = o3d.geometry.Image(rgb.astype('uint8'))
     depth = o3d.geometry.Image(disparity_matrix.astype(np.uint16))
@@ -29,8 +29,12 @@ def RGBD_to_PC(rgb, d, focal_length, baseline, scale = 9.88):
 
 if __name__ == '__main__':
 
-    rgb_source = 'cones/conesF/im2.ppm'
-    d_source = 'cones/conesF/disp2.pgm' #JBFU/upsampled.png'
+    # rgb_source = 'data/data_tmp/cones/conesF/im2.ppm'
+    # d_source = 'data/data_tmp/cones/conesF/disp2.pgm' 
+
+    rgb_source = 'data/scenes_2005/Art/view1_large.png'
+    d_source = 'outputs/scenes_2005/Art/jb_sf_large.png'    
+
     rgb =  np.asarray(Image.open(rgb_source).convert('L'))
     disparity = np.asarray(Image.open(d_source).convert('L'))
     RGBD_to_PC(rgb, disparity, 3740, 160, scale = 9.88)
