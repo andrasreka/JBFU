@@ -1,16 +1,16 @@
 import cv2
 from datetime import datetime
 import numpy as np
-from bilateral import jbmf
+from bilateral import jbmf, jbf
 
 if __name__ == "__main__":
     
-    input_img = cv2.imread("../data/flash_no_flash/potsWB_00_flash.jpg", 0)
+    input_img = cv2.imread("../data/filter/lena.png", 0)
     #g = cv2.imread("testa.jpg", 0)
 
     #only for speedy testing
-    if input_img.shape[0] > 300:
-        scale_percent = 10
+    if input_img.shape[0] > 3000:
+        scale_percent = 50
         width = int(input_img.shape[1] * scale_percent / 100)
         height = int(input_img.shape[0] * scale_percent / 100)
         dim = (width, height)
@@ -25,11 +25,10 @@ if __name__ == "__main__":
     cv2.imwrite("filtered_OpenCV.png",filtered_image_OpenCV)
 
     start=datetime.now()
-    filtered_image_own = jbmf(src, src, 7, 12.0, 16.0, np.ones((7,7)))
+    filtered_image_own = jbf(src, src, 5, 10.0, 10.0)
     print(datetime.now()-start)
 
-    cv2.imshow("filtered_my.png", filtered_image_own)
-    cv2.imwrite("jbf.png",filtered_image_own)
+    cv2.imwrite("jbf_1.png",filtered_image_own)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
