@@ -146,9 +146,9 @@ def upsampling_iterative(rgb, depth, kernel, s1, s2, weights=None):
     depth = cv2.resize(depth, (rgb_ori.shape[1], rgb_ori.shape[0]))
 
     if weights is None:
-        return jbf(rgb, depth, kernel, s1, s2)
+        return jbf(rgb_ori, depth, kernel, s1, s2)
     
-    return jbmf(rgb, depth, kernel, s1, s2, weights)
+    return jbmf(rgb_ori, depth, kernel, s1, s2, weights)
 
 
 def upsampling(rgb, depth, kernel, s1, s2, weights=None):
