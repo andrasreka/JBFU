@@ -8,13 +8,15 @@ if __name__ == "__main__":
     sigma_spatial = 4
     sigma_range = 7
     weights = np.ones((kernel, kernel))
-    images = ['Art']#['Books', 'Dolls', 'Laundry', 'Moebius', 'Reindeer']
+    #images = ['Art', 'Books', 'Dolls', 'Laundry', 'Moebius', 'Reindeer']
+    images = ['Aloe', 'Baby', 'Bowling', 'Cloth', 'Flowerpots', 'Lampshade']
     sums =  [timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)]
-    base = "data/scenes_2005/"
+    #base = "data/scenes_2005/"
+    base = "data/scenes_2006"
     for image in images:
         print("Processing {}".format(image))
 
-        rgb = cv2.imread(base + image + "/view1_large.png", 0)
+        rgb = cv2.imread(base + image + "/view1.png", 0)
         d = cv2.imread(base + image + "/disp1.png", 0)
 
         start=datetime.now()
