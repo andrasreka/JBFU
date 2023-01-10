@@ -12,7 +12,7 @@ if __name__ == "__main__":
     images = ['Aloe', 'Baby', 'Bowling', 'Cloth', 'Flowerpots', 'Lampshade']
     sums =  [timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0),timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)]
     #base = "data/scenes_2005/"
-    base = "data/scenes_2006"
+    base = "data/scenes_2006/"
     for image in images:
         print("Processing {}".format(image))
 
